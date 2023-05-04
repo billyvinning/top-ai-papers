@@ -2,18 +2,9 @@
 
 This repository is intended as a resource that aggregates the most-cited papers published within the most-influential Artificial Intelligence (AI) journals. The results are tabulated lower in this `README`; provided are all-time rankings, decadal rankings and yearly rankings from 1990 to 2023. The most-influential AI journals considered are those according to [SCImago's](https://www.scimagojr.com/) SCImago Journal Rank (SJR) indicator; the number of citations are provided by [Crossref](https://www.crossref.org/).
 
-# All-Time Most-Cited Papers
+# Results Table
 
-{alltime_rankings}
-
-# Decadal Most-Cited Papers
-
-{decadal_rankings}
-
-# Yearly Most-Cited Papers
-
-{yearly_rankings}
-
+{table_data}
 
 # Building
 
