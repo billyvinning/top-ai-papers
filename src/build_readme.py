@@ -4,8 +4,8 @@ from io import StringIO
 
 import pandas as pd
 
-N_ALLTIME_PAPERS = 20
-N_DECADAL_PAPERS = 5
+N_ALLTIME_PAPERS = 50
+N_DECADAL_PAPERS = 10
 
 
 class MLStripper(HTMLParser):
@@ -107,8 +107,8 @@ def tabulate_decadal_rankings(df):
         df = df.rename(columns={"Decade Ranking": "Rank"})
         df = df[["Rank", "No. Citations", "Title", "Journal", "DOI"]]
         table = df.to_markdown(tablefmt="github", index=False)
-        out.append(f"{decade}'s\n")
-        out.append(table)
+        out.append(f"### {decade}'s\n")
+        out.append(table + "\n")
     return "\n".join(out)
 
 
@@ -131,15 +131,22 @@ def run(
     with open(input_path, "r") as f:
         template_readme = f.read()
 
+    year_range = (
+        f"{citation_data_clean.Year.min()}-{citation_data_clean.Year.max()}"
+    )
     table_data = f"""
-## All-Time Rankings
+## All-Time ({year_range}) Rankings
 {tabulate_alltime_rankings(citation_data_clean)}
-## Decadal Rankings
+## Rankings by Decade
 {tabulate_decadal_rankings(citation_data_clean)}
     """
 
     print(table_data)
-    formatted_readme = template_readme.format(table_data=table_data)
+    formatted_readme = template_readme.format(
+        year_lower=citation_data_clean.Year.min(),
+        year_upper=citation_data_clean.Year.max(),
+        table_data=table_data,
+    )
 
     with open(output_path, "w") as f:
         f.write(formatted_readme)

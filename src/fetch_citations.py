@@ -5,9 +5,9 @@ import pandas as pd
 import requests
 import tqdm
 
-N_JOURNALS = 5  # Top N journals to parse papers from.
+N_JOURNALS = 20  # Top N journals to parse papers from.
 YEAR_PUBLISHED_RANGE = (
-    2015,
+    1990,
     2024,
 )  # (Low, High) range of published date years.
 N_PAPERS = 5  # Number of papers to parse per journal.
@@ -60,12 +60,16 @@ def scrape_journal_selection(issn, year, dry_run=False, **kwargs):
 
 def run(journal_data_path, output_path):
     journals_df = pd.read_csv(journal_data_path, sep=";")
+    journals_df = journals_df[journals_df["Type"] == "journal"]
+    journals_df = journals_df.sort_values("SJR", ascending=False).head(
+        N_JOURNALS
+    )
     dfs = []
-    for row in journals_df.sort_values("Rank").head(N_JOURNALS).itertuples():
+    for row in journals_df.itertuples():
         records = []
         for year in tqdm.trange(*YEAR_PUBLISHED_RANGE):
             year_records = scrape_journal_selection(
-                issn=row.Issn.split(",")[-1],
+                issn=row.Issn.split(",")[-1].strip(),
                 select=[
                     "title",
                     "ISSN",
