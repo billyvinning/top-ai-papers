@@ -5,9 +5,9 @@ import pandas as pd
 import requests
 import tqdm
 
-N_JOURNALS = 20  # Top N journals to parse papers from.
+N_JOURNALS = 30  # Top N journals to parse papers from.
 YEAR_PUBLISHED_RANGE = (
-    1990,
+    1970,
     2024,
 )  # (Low, High) range of published date years.
 N_PAPERS = 5  # Number of papers to parse per journal.
@@ -47,6 +47,9 @@ def scrape_journal_selection(issn, year, dry_run=False, **kwargs):
 
     while 1:
         response = requests.get(f"{url}&cursor={cursor}")
+        if response.status_code != 200:
+            print(f"Error code: {response.status_code}, skipping url ({url}).")
+            break
         assert response.status_code == 200, (url, response.status_code)
         message = json.loads(response.text)["message"]
         items = message["items"]

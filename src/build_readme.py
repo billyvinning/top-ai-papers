@@ -112,6 +112,22 @@ def tabulate_decadal_rankings(df):
     return "\n".join(out)
 
 
+def tabulate_journals(df):
+    df = df.groupby("Journal")["No. Citations"].sum().reset_index()
+    df = df.sort_values("No. Citations", ascending=False)
+    df["Rank"] = df["No. Citations"].rank(ascending=False)
+    return df[["Rank", "Journal", "No. Citations"]].to_markdown(
+        tablefmt="github", index=False
+    )
+
+
+def eval_safe(v):
+    try:
+        return eval(v)
+    except Exception:
+        return None
+
+
 def run(
     citations_data_path,
     input_path,
@@ -120,12 +136,16 @@ def run(
     citation_data = pd.read_csv(
         citations_data_path,
         converters={
-            "title": eval,
-            "published": eval,
-            "ISSN": eval,
-            "year": eval,
+            "title": eval_safe,
+            "published": eval_safe,
+            "ISSN": eval_safe,
+            "year": eval_safe,
         },
     )
+    # citation_data = pd.read_csv(citations_data_path)
+    citation_data = citation_data[~citation_data.title.isnull()]
+    # for c in ["title", "published", "ISSN", "year"]:
+    # citation_data[c] = pd.eval(citation_data[c])
     citation_data_clean = clean_citations(citation_data)
 
     with open(input_path, "r") as f:
@@ -135,10 +155,12 @@ def run(
         f"{citation_data_clean.Year.min()}-{citation_data_clean.Year.max()}"
     )
     table_data = f"""
-## All-Time ({year_range}) Rankings
+## All-Time ({year_range}) Most-Cited
 {tabulate_alltime_rankings(citation_data_clean)}
-## Rankings by Decade
+## Most-Cited by Decade
 {tabulate_decadal_rankings(citation_data_clean)}
+## List of Journals Parsed
+{tabulate_journals(citation_data_clean)}
     """
 
     print(table_data)
